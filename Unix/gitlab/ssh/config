@@ -1,0 +1,130 @@
+# ======================================================================
+# [统一跨平台SSH配置方案]
+# 设计目标:
+# 1. 跨平台兼容: Windows, macOS, Linux 无缝使用。
+# 2. 继承性: Docker、GitLab代理等复杂场景自动继承上游主机配置。
+# 3. 简洁易维护: 遵循DRY原则，易于扩展。
+# ======================================================================
+
+# [1. 全局默认设置]
+Host *
+    # 通用连接设置
+    PreferredAuthentications publickey,password,keyboard-interactive
+    AddKeysToAgent          yes
+    ServerAliveInterval     60
+    ServerAliveCountMax     3
+    # 默认私钥，如果您的私钥不在此处，请修改
+    IdentityFile            ~/.ssh/id_ed25519
+    IdentityFile            ~/.ssh/id_rsa
+    IdentitiesOnly          yes
+    StrictHostKeyChecking   accept-new
+    UpdateHostKeys          yes
+
+    # --- 高级功能: 连接复用 (请根据您的操作系统选择一个) ---
+    # 连接复用可以显著提高重复连接的速度。
+
+    # Windows (OpenSSH 8.1+): 默认禁用以保证兼容性
+    # 如果您确认环境稳定，可以取消以下三行的注释。
+    # ControlMaster auto
+    # ControlPath \\.\pipe\ssh-%r@%h:%p
+    # ControlPersist 10m
+
+    # macOS / Linux: 默认启用
+    # ControlMaster auto
+    # ControlPath ~/.ssh/cm-%r@%h:%p
+    # ControlPersist 10m
+
+# ======================================================================
+# [2. 核心开发服务器]
+# 统一管理所有核心开发服务器
+Host dev* arm-server
+    User shijiashuai
+
+# 定义每台服务器的地址
+Host dev11
+    HostName 10.49.55.8
+	Port      9090
+	
+Host dev10
+    HostName 10.227.5.229
+
+Host dev07
+    HostName 10.227.4.232
+
+Host arm-server
+    HostName 10.227.4.11
+
+# ======================================================================
+# [3. Docker 开发环境]
+# 这些配置会自动继承其ProxyJump目标的连接逻辑
+Host dev10-alma-dev
+    HostName  localhost
+    Port      28981
+    ProxyJump dev10
+
+Host dev10-ubuntu-dev
+    HostName  localhost
+    Port      28982
+    ProxyJump dev10
+
+Host dev07-alma-dev
+    HostName  localhost
+    Port      28981
+    ProxyJump dev07
+	
+Host dev11-hillock
+    HostName  10.49.55.8
+    Port      8200
+
+# ======================================================================
+# [4. GitLab 及代理配置]
+
+# --- 方式A: SOCKS 代理 (由 start-proxy 脚本调用) ---
+# 用于浏览器访问 GitLab 网页，以及 Git 的 HTTPS 协议代理
+# 直接连接 dev10，显式指定 HostName 和 User（更稳健，适配 Windows OpenSSH）
+Host gitlab-proxy
+    HostName 10.227.5.229
+    User shijiashuai
+    # 注意: 不在配置中静态绑定 DynamicForward
+    # 端口由启动脚本动态选择并通过 -o DynamicForward 注入，避免重复绑定
+    RequestTTY no
+    ExitOnForwardFailure yes
+    # --- 保活与稳定性增强 ---
+    ServerAliveInterval 30
+    ServerAliveCountMax 6
+    TCPKeepAlive yes
+    ConnectTimeout 10
+    Compression yes
+
+# --- 方式B: Git over SSH (用于 git clone git@... ) ---
+# 当您使用 git@git.bgi.com:... 这样的SSH地址时，此配置生效。
+Host git.bgi.com
+    HostName git.bgi.com
+    User git
+    # git 命令将通过 dev10 访问 GitLab，仅在公司内网有效
+    ProxyJump dev10
+
+# ======================================================================
+# [5. 其他局域网主机]
+
+# 统一设置这些主机的用户
+Host win-* ubuntu-lenovo
+    User shuai
+Host win-*
+    PubkeyAcceptedAlgorithms +ssh-rsa
+    HostkeyAlgorithms +ssh-rsa
+
+Host win-thinkbook
+    HostName 172.19.11.241
+
+Host win-12700
+    HostName 172.19.15.194
+
+Host win-10700
+    HostName 172.19.3.157
+
+Host win-9700
+    HostName 172.19.75.255
+
+Host ubuntu-lenovo
+    HostName 172.19.12.79

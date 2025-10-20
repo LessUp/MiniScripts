@@ -1,0 +1,92 @@
+# ======================================================================
+# 统一 Git 全局配置（跨设备通用）
+#
+# 使用说明：
+# 1) 将本文件复制到 %USERPROFILE%\.gitconfig（Windows）或 ~/.gitconfig（macOS/Linux）。
+# 2) 用户名/邮箱请按需修改为你的个人信息。
+# 3) 本配置不设置全局代理，代理仅对公司 GitLab 项目生效（通过 includeIf 条件加载）。
+# ======================================================================
+
+# --- 1. 用户信息 (User Information) ---
+[user]
+    name          = shijiashuai
+    email         = shijiashuai@bgi.com
+    useConfigOnly = true
+
+# --- 2. 核心配置 (Core Settings) ---
+[core]
+    autocrlf       = input                # Linux: 提交时转换 CRLF->LF，检出不改动
+    quotepath      = false                # 允许在路径中使用非 ASCII 字符
+    trustctime     = false                # 提高文件状态检测的可靠性
+    ignorecase     = false                # Linux 区分大小写
+    untrackedcache = true                 # 启用未跟踪文件缓存，提升 `git status` 速度
+    filemode       = true                 # Linux 跟踪可执行位
+    excludesfile   = ~/.gitignore_global  # 全局忽略文件
+    attributesfile = ~/.attributes_global # 全局属性文件
+
+[init]
+    defaultBranch  = master               # `git init` 创建的默认分支名
+
+[pull]
+    rebase         = false                # `git pull` 默认使用 merge 而不是 rebase
+
+[rebase]
+    backend        = merge                # rebase 的底层引擎
+
+[safe]
+    directory      = *                    # 信任所有仓库，避免所有权检查问题
+
+# --- 3. Git LFS (Large File Storage) ---
+[filter "lfs"]
+    process  = git-lfs filter-process
+    required = true
+    clean    = git-lfs clean -- %f
+    smudge   = git-lfs smudge -- %f
+
+[lfs]
+    concurrenttransfers = 32              # LFS 并发传输数
+    fetchrecentrefsdays = 0               # 获取所有 LFS 引用
+    pruneoffsetdays     = 0               # 从不修剪旧的 LFS 文件
+    dialtimeout         = 3               # 连接超时 (秒)
+    tlstimeout          = 3               # TLS 握手超时 (秒)
+
+[merge "lfs-text"]
+    driver = git lfs merge-driver --ancestor %O --current %A --other %B --marker-size %L --output %A --program 'git merge-file --stdout --marker-size=%%L %%A %%O %%B >%%D'
+
+# --- 4. 网络与凭据 (Network & Credentials) ---
+[http]
+    postBuffer   = 655360000              # HTTP POST 缓冲区大小 (~625MB)
+    sslbackend   = gnutls                 # Linux: 使用 gnutls
+
+[credential]
+    helper       = cache                  # Linux: 使用内存缓存凭据
+[credential "https://git.bgi.com"]
+    useHttpPath  = true                   # 推荐：配合 GCM 消除警告
+
+# --- 5. 条件化代理配置 (Conditional Proxy) ---
+# 仅在处理 `https://git.bgi.com/` 项目时加载专用代理配置文件
+[includeIf "hasconfig:remote.*.url:https://git.bgi.com/*"]
+    path = .gitconfig-bgi-proxy-v3
+
+# --- 6. 工具与其它 (Tools & Misc) ---
+[difftool "sourcetree"]
+    cmd = "'' "
+
+[mergetool "sourcetree"]
+    cmd           = "'' "
+    trustExitCode = true
+
+[mergetool]
+    keepBackup    = false                 # 合并工具不创建备份文件
+
+[diff "text"]
+    textconv      = cat                   # 文本文件差异比较工具
+
+[protocol]
+    version       = 1                     # Git 协议版本
+
+[color]
+    ui            = auto                  # 彩色输出
+
+[fetch]
+    prune         = true                  # 拉取时自动修剪远端已删除分支
