@@ -49,7 +49,7 @@ echo ""
 echo "[*] 步骤 2: 停止代理进程..."
 if [ ! -f "$PID_FILE" ]; then
     echo "    未找到 PID 文件，尝试按固定端口停止..."
-    PORT="${GITLAB_SOCKS_PORT:-1080}"
+    PORT="${GITLAB_SOCKS_PORT:-1088}"
     PORT_PID=$(find_pid_by_port "$PORT")
     if [ -n "$PORT_PID" ] && ps -p "$PORT_PID" > /dev/null 2>&1; then
         echo "    - 发现监听端口的进程 (PID: $PORT_PID)。尝试终止..."

@@ -82,12 +82,12 @@ git config --global credential.https://git.bgi.com.useHttpPath true
   cd GitlabProxy/v3
   ./start-proxy.sh
   ```
-脚本会自动启动 SSH 代理隧道，并为 Git 命令配置好代理。端口固定为 `127.0.0.1:1080`（可通过环境变量 `GITLAB_SOCKS_PORT` 临时覆盖）。
+脚本会自动启动 SSH 代理隧道，并为 Git 命令配置好代理。端口固定为 `127.0.0.1:1088`（可通过环境变量 `GITLAB_SOCKS_PORT` 临时覆盖）。
 
 **注意**
-- **端口冲突处理**：采用固定端口策略，若 1080 被占用脚本会直接报错并提示占用者，便于排查。
-- **转发策略**：脚本通过命令行参数 `-D 127.0.0.1:1080` 注入动态转发，请避免在 `~/.ssh/config` 中为 `Host gitlab-proxy` 静态配置 `DynamicForward` 以免叠加。
-- **配置建议**：请不要在 `~/.ssh/config` 的 `Host gitlab-proxy` 中静态配置 `DynamicForward`，转发由脚本注入，端口固定 1080。
+- **端口冲突处理**：采用固定端口策略，若 1088 被占用脚本会直接报错并提示占用者，便于排查。
+- **转发策略**：脚本通过命令行参数 `-D 127.0.0.1:1088` 注入动态转发，请避免在 `~/.ssh/config` 中为 `Host gitlab-proxy` 静态配置 `DynamicForward` 以免叠加。
+- **配置建议**：请不要在 `~/.ssh/config` 的 `Host gitlab-proxy` 中静态配置 `DynamicForward`，转发由脚本注入，端口固定 1088。
 
 ### 浏览器访问
 
@@ -96,15 +96,15 @@ git config --global credential.https://git.bgi.com.useHttpPath true
 1.  打开浏览器的代理设置。
 2.  选择 **手动代理配置**。
 3.  在 **SOCKS 主机** (SOCKS Host) 字段中，输入 `127.0.0.1`。
-4.  在 **端口** (Port) 字段中，输入 `1080`。
+4.  在 **端口** (Port) 字段中，输入 `1088`。
 5.  确保选择 **SOCKS v5**。
 6.  保存设置。
 
 **说明**: 我们在 Git 配置中指定使用 `socks5h://`，由代理服务器解析公司内网域名，避免本地 `hosts` 依赖。默认 SSH 目标为 `gitlab-proxy`（见 `ssh/config`）。
--   **Git 命令**：使用 `socks5h://127.0.0.1:1080`，保证 `git.bgi.com` 等内网域名解析正确。
+-   **Git 命令**：使用 `socks5h://127.0.0.1:1088`，保证 `git.bgi.com` 等内网域名解析正确。
 -   **浏览器**：配置 SOCKS v5 代理，并启用“通过代理解析 DNS”（不同浏览器项名称可能不同）；如无法启用，可按需添加 `hosts`。
 
-提示：脚本会在 `$HOME/.gitconfig-bgi-proxy-v3` 中写入 `socks5h://127.0.0.1:1080`，Git 将按该文件生效（固定端口）。
+提示：脚本会在 `$HOME/.gitconfig-bgi-proxy-v3` 中写入 `socks5h://127.0.0.1:1088`，Git 将按该文件生效（固定端口）。
 
 因此，本方案兼顾 Git 客户端与浏览器：Git 通过 `socks5h` 自动解析内网域名，浏览器按需启用远程 DNS 或使用 `hosts` 辅助。
 

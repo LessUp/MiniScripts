@@ -7,12 +7,12 @@
 #   - 行为: 启动代理并生成条件代理文件（不修改全局 include.path）。
 #   - 进程管理: 通过 PID 文件 (`.proxy-pid`) 管理代理进程，防止重复启动。
 #   - 连接: 默认通过 `~/.ssh/config` 中的 `gitlab-proxy` 建立连接（可用环境变量 GITLAB_PROXY_SSH_TARGET 覆盖）。
-#   - 端口: 固定使用 1080（可通过环境变量 GITLAB_SOCKS_PORT 覆盖），不做端口漂移。
+#   - 端口: 固定使用 1088（可通过环境变量 GITLAB_SOCKS_PORT 覆盖），不做端口漂移。
 # ==============================================================================
 
 # --- 1. 定义核心变量 ---
 PID_FILE="./.proxy-pid" # PID 文件用于存储正在运行的代理进程的进程号
-BASE_PORT="${GITLAB_SOCKS_PORT:-1080}"
+BASE_PORT="${GITLAB_SOCKS_PORT:-1088}"
 SOCKS_PORT="$BASE_PORT"
 MAX_PORT_ATTEMPTS=0
 SSH_LOG="/tmp/gitlab_proxy_log.txt"
@@ -36,7 +36,7 @@ find_available_port() {
     return 1
 }
 
-# 固定端口模式：若 1080 被占用则直接退出（不做端口漂移）
+# 固定端口模式：若 1088 被占用则直接退出（不做端口漂移）
 if port_in_use "$SOCKS_PORT"; then
     echo "🔴 错误: 固定端口 $SOCKS_PORT 已被占用。"
     echo "提示: 请先释放该端口，或临时以环境变量覆盖: GITLAB_SOCKS_PORT=1090 ./start-proxy.sh"
