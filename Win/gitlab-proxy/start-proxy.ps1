@@ -9,7 +9,7 @@
 
 # --- 1. 脚本核心变量 ---
 $SshHostAlias = "gitlab-proxy"       # 要连接的 SSH 主机别名 (必须在 ~/.ssh/config 中定义)
-$SocksPort    = 1080
+$SocksPort    = 1088
 
 $SshExecutable = "C:\Windows\System32\OpenSSH\ssh.exe"
 $PidFile = Join-Path $PSScriptRoot ".proxy-pid"
