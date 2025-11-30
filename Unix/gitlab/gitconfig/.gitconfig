@@ -64,10 +64,10 @@
 
 # --- 5. 条件化代理配置 (Conditional Proxy) ---
 # 针对不同远端域名按需加载专用代理配置文件
-[includeIf "hasconfig:remote.*.url:https://git.bgi.com/*"]
+[includeIf "hasconfig:remote.*.url:https://git.bgi.com/**"]
     path = .gitconfig-bgi-proxy-v3
 
-[includeIf "hasconfig:remote.*.url:https://github.com/*"]
+[includeIf "hasconfig:remote.*.url:https://github.com/**"]
     path = .gitconfig-github-proxy
 
 # --- 6. 工具与其它 (Tools & Misc) ---

@@ -9,6 +9,3 @@
 
 [http "https://git.bgi.com"]
     proxy = socks5h://127.0.0.1:1088  # 示例端口
-
-[http "https://github.com"]
-    proxy = socks5://127.0.0.1:10808  # GitHub 代理（本地 socks5）
