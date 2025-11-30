@@ -4,7 +4,7 @@
 # 使用说明：
 # 1) 将本文件复制到 ~/.gitconfig（macOS/Linux）。
 # 2) 用户名/邮箱请按需修改为你的个人信息。
-# 3) 本配置不设置全局代理，代理仅对公司 GitLab 项目生效（通过 includeIf 条件加载）。
+# 3) 本配置不设置全局代理，代理仅通过 includeIf 条件加载，对公司 GitLab / GitHub 等特定项目生效。
 # ======================================================================
 
 # --- 1. 用户信息 (User Information) ---
@@ -63,9 +63,12 @@
     useHttpPath  = true                   # 推荐：配合 GCM 消除警告
 
 # --- 5. 条件化代理配置 (Conditional Proxy) ---
-# 仅在处理 `https://git.bgi.com/` 项目时加载专用代理配置文件
+# 针对不同远端域名按需加载专用代理配置文件
 [includeIf "hasconfig:remote.*.url:https://git.bgi.com/*"]
     path = .gitconfig-bgi-proxy-v3
+
+[includeIf "hasconfig:remote.*.url:https://github.com/*"]
+    path = .gitconfig-github-proxy
 
 # --- 6. 工具与其它 (Tools & Misc) ---
 [difftool "sourcetree"]

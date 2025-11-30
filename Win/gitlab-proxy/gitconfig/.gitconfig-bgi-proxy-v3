@@ -2,10 +2,13 @@
 # BGI GitLab 专用代理配置（v3）
 #
 # 说明：
-# - 此文件作为模板示例，由主 .gitconfig 通过 includeIf 条件化加载，仅对 https://git.bgi.com/ 生效。
+# - 此文件作为模板示例，由主 .gitconfig 通过 includeIf 条件化加载，对匹配到的域名生效（如 https://git.bgi.com/、https://github.com/）。
 # - 使用 socks5h，让 DNS 解析由代理完成，适配公司内网域名。
 # - 端口策略：固定使用 1088；实际生效值由脚本生成到 $HOME/.gitconfig-bgi-proxy-v3。
 # ======================================================================
 
 [http "https://git.bgi.com"]
     proxy = socks5h://127.0.0.1:1088  # 示例端口
+
+[http "https://github.com"]
+    proxy = socks5://127.0.0.1:10808  # GitHub 代理（本地 socks5）
