@@ -1,7 +1,7 @@
 # ======================================================================
-# [统一跨平台SSH配置方案]
+# [Windows SSH配置方案]
 # 设计目标:
-# 1. 跨平台兼容: Windows, macOS, Linux 无缝使用。
+# 1. Windows
 # 2. 继承性: Docker、GitLab代理等复杂场景自动继承上游主机配置。
 # 3. 简洁易维护: 遵循DRY原则，易于扩展。
 # ======================================================================
@@ -14,27 +14,19 @@ Host *
     ServerAliveInterval     60
     ServerAliveCountMax     3
     # 默认私钥，如果您的私钥不在此处，请修改
-    IdentityFile            ~/.ssh/id_ed25519
-    IdentityFile            ~/.ssh/id_rsa
+    IdentityFile            ~/.ssh/id_ed25519   # 推荐：Ed25519
+    IdentityFile            ~/.ssh/id_rsa       # 兼容：如仍在使用旧 RSA 密钥
     IdentitiesOnly          yes
     StrictHostKeyChecking   accept-new
     UpdateHostKeys          yes
 
-    # Windows环境常见：禁用GSSAPI可避免不必要的Kerberos尝试
+    # Windows 常见：关闭 GSSAPI 可避免多余的 Kerberos 尝试、减少登录延迟
     GSSAPIAuthentication    no
 
-    # --- 高级功能: 连接复用 (请根据您的操作系统选择一个) ---
-    # 连接复用可以显著提高重复连接的速度。
-
-    # Windows (OpenSSH 8.1+): 默认禁用以保证兼容性
-    # 如果您确认环境稳定，可以取消以下三行的注释。
+    # 可选：连接复用，提升频繁 ssh / scp / git over SSH 的连接速度
+    # 在确认本机 OpenSSH 版本和环境稳定后，可按需取消下面三行的注释：
     # ControlMaster auto
     # ControlPath \\.\pipe\ssh-%r@%h:%p
-    # ControlPersist 10m
-
-    # macOS / Linux: 默认启用
-    # ControlMaster auto
-    # ControlPath ~/.ssh/cm-%r@%h:%p
     # ControlPersist 10m
 
 # ======================================================================
@@ -109,19 +101,20 @@ Host git.bgi.com
 
 # ======================================================================
 # [5. 其他局域网主机]
+ 
+ # 统一设置这些主机的用户
+ Host win-* ubuntu-lenovo
+     User shuai
 
-# 统一设置这些主机的用户
-Host win-* ubuntu-lenovo
-    User shuai
-Host win-*
-    PubkeyAcceptedAlgorithms +ssh-rsa
-    HostkeyAlgorithms +ssh-rsa
+ # 如需兼容旧版或特殊配置的 Windows SSH 服务器，可参考以下示例配置；
+ # 默认保持注释，以优先使用现代、更安全的算法。
+ # Host win-*
+ #     PubkeyAcceptedAlgorithms +ssh-rsa
+ #     HostkeyAlgorithms +ssh-rsa
+ #     KexAlgorithms +diffie-hellman-group14-sha1
+ #     Ciphers +aes128-ctr,aes192-ctr,aes256-ctr
 
-    # 兼容部分旧版或特殊配置的 Windows OpenSSH 服务器
-    KexAlgorithms +diffie-hellman-group14-sha1
-    Ciphers +aes128-ctr,aes192-ctr,aes256-ctr
-
-Host win-thinkbook
+ Host win-thinkbook
     HostName 172.19.11.241
 
 Host win-12700
